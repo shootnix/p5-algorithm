@@ -1,1 +1,1 @@
-# p5-algorhitm
+# p5-algorithm
