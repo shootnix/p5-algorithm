@@ -144,6 +144,16 @@ sub max {
 	return $max;
 }
 
+sub traverse {
+	my ($self, $cb) = @_;
 
+	return unless $self;
+
+	$self->left->traverse($cb) if $self->left;
+	$cb->($self->item);
+	$self->right->traverse($cb) if $self->right;
+
+	return 1;
+}
 
 1;
