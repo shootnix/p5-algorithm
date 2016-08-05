@@ -5,28 +5,50 @@ use 5.010;
 
 package BinaryTree;
 
+
 sub new {
 	my ($class, $list) = @_;
 
-	return build_tree($list);
-}
+	my $self = {
+		root => BinaryTree::Node->new(shift @$list),
+	};
+	bless $self, $class;
 
-sub build_tree {
-	my ($list) = @_;
-
-	my $root = BinaryTree::Node->new(shift @$list);
-	my $node;
 	for my $value (@$list) {
-		if ($node) {
-			$node = $node->add_child($value);
-		}
-		else {
-			$node = $root->add_child($value);
-		}
+		$self->add($value);
 	}
 
-	return $root;
+	return $self->{root};
 }
+
+sub add {
+	my ($self, $value) = @_;
+
+	my $current = $self->{root};
+	while (1) {
+		if ($value >= $current->item) {
+			if (!$current->right) {
+				$current->right(BinaryTree::Node->new($value));
+				last;
+			}
+			else {
+				$current = $current->right;
+			}
+		}
+		else {
+			# left
+			if (!$current->left) {
+				$current->left(BinaryTree::Node->new($value));
+				last;
+			}
+			else {
+				$current = $current->left;
+			}
+		}
+	}
+}
+
+
 
 package BinaryTree::Node;
 
@@ -63,16 +85,65 @@ sub right {
 	return $self->{R};
 }
 
-sub add_child {
+sub insert {
 	my ($self, $value) = @_;
 
-	my $child = BinaryTree::Node->new($value);
-	if ($self->item > $value) { $self->left($child) }
-	else { $self->right($child) }
+	if ($self->item >= $value) {
+		$self->left(insert($self->left, $value));
+	}
+	else {
+		$self->right(insert($self->right, $value));
+	}
 
-	return $child;
+	return $self;
 }
 
-sub item { shift->{item} }
+sub item {
+	my ($self, $value) = @_;
+
+	if ($value) {
+		$self->{item} = $value;
+	}
+
+	return $self->{item};
+}
+
+sub search {
+	my ($self, $value) = @_;
+
+	return 1 if $self->item == $value;
+	if ($value < $self->item) {
+		return $self->left ? $self->left->search($value) : undef;
+	}
+	else {
+		return $self->right ? $self->right->search($value) : undef;
+	}
+
+	return undef;
+}
+
+sub min {
+	my ($self) = @_;
+
+	my $min = $self;
+	while ($min->left) {
+		$min = $min->left;
+	}
+
+	return $min;
+}
+
+sub max {
+	my ($self) = @_;
+
+	my $max = $self;
+	while ($max->right) {
+		$max = $max->right;
+	}
+
+	return $max;
+}
+
+
 
 1;
